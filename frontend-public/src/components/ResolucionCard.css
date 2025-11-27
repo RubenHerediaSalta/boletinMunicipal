@@ -1,0 +1,134 @@
+.resolucion-card {
+  background: var(--blanco);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--gris-medio);
+}
+
+.resolucion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.card-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-categoria {
+  background-color: var(--azul-claro);
+  color: var(--blanco);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-numero {
+  background-color: var(--gris-oscuro);
+  color: var(--blanco);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.card-date {
+  color: var(--gris-oscuro);
+  font-size: 0.875rem;
+}
+
+.card-title {
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.title-link {
+  color: var(--azul-municipal);
+  transition: color 0.2s ease;
+}
+
+.title-link:hover {
+  color: var(--azul-hover);
+}
+
+.card-content {
+  margin-bottom: 1rem;
+}
+
+.content-preview {
+  color: var(--gris-texto);
+  line-height: 1.6;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tag {
+  background-color: var(--gris-claro);
+  color: var(--gris-texto);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.tag-more {
+  background-color: var(--gris-medio);
+  color: var(--gris-texto);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions .btn {
+    justify-content: center;
+  }
+
+/* Agregar al archivo existente */
+.card-meta-dates {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-date {
+  font-size: 0.875rem;
+  color: var(--gris-oscuro);
+}
+
+.meta-date strong {
+  color: var(--gris-texto);
+}
+
+}

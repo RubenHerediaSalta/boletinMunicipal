@@ -1,0 +1,166 @@
+/* Variables de colores institucionales */
+:root {
+  --azul-municipal: #1e3a8a;
+  --azul-claro: #3b82f6;
+  --azul-hover: #2563eb;
+  --blanco: #ffffff;
+  --gris-claro: #f8fafc;
+  --gris-medio: #e2e8f0;
+  --gris-oscuro: #64748b;
+  --gris-texto: #334155;
+  --verde: #059669;
+  --rojo: #dc2626;
+  --amarillo: #d97706;
+}
+
+/* Reset y estilos base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--gris-texto);
+  background-color: var(--blanco);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+/* Clases de utilidad */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.btn-primary {
+  background-color: var(--azul-municipal);
+  color: var(--blanco);
+}
+
+.btn-primary:hover {
+  background-color: var(--azul-hover);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--azul-municipal);
+  border-color: var(--azul-municipal);
+}
+
+.btn-outline:hover {
+  background-color: var(--azul-municipal);
+  color: var(--blanco);
+}
+
+.btn-danger {
+  background-color: var(--rojo);
+  color: var(--blanco);
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.btn-secondary {
+  background-color: var(--gris-oscuro);
+  color: var(--blanco);
+}
+
+.btn-secondary:hover {
+  background-color: #475569;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Estados de carga y error */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--gris-medio);
+  border-top: 4px solid var(--azul-municipal);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 3rem;
+}
+
+/* Destacado de búsqueda */
+.search-highlight {
+  background-color: #fef3c7;
+  padding: 0.1rem 0.2rem;
+  border-radius: 0.25rem;
+}

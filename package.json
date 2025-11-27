@@ -1,0 +1,15 @@
+{
+  "name": "boletin-municipal",
+  "version": "1.0.0",
+  "description": "Sistema de boletín oficial municipal",
+  "main": "backend/server.js",
+  "scripts": {
+    "dev:backend": "cd backend && nodemon server.js",
+    "dev:frontend": "cd frontend-admin && npm start",
+    "init-db": "cd backend && node scripts/initDB.js",
+    "start": "cd backend && node server.js"
+  },
+  "keywords": ["municipio", "boletin", "resoluciones"],
+  "author": "",
+  "license": "ISC"
+}

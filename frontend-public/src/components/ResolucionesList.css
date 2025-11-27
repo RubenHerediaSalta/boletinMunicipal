@@ -1,0 +1,36 @@
+.resoluciones-list {
+  width: 100%;
+}
+
+.results-info {
+  margin-bottom: 1.5rem;
+}
+
+.results-count {
+  font-weight: 600;
+  color: var(--gris-oscuro);
+}
+
+.resoluciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--gris-oscuro);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .resoluciones-grid {
+    grid-template-columns: 1fr;
+  }
+}

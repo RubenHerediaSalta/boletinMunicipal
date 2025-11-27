@@ -1,0 +1,131 @@
+.search-filters {
+  background-color: var(--blanco);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.filters-header h3 {
+  color: var(--azul-municipal);
+}
+
+.btn-clear {
+  background: none;
+  color: var(--gris-oscuro);
+  text-decoration: underline;
+  font-size: 0.875rem;
+}
+
+.btn-clear:hover {
+  color: var(--azul-municipal);
+}
+
+.filter-group {
+  margin-bottom: 1.5rem;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--gris-texto);
+}
+
+.search-input,
+.filter-input,
+.filter-select,
+.tag-search-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gris-medio);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus,
+.filter-input:focus,
+.filter-select:focus,
+.tag-search-input:focus {
+  outline: none;
+  border-color: var(--azul-claro);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tags-filter {
+  margin-top: 0.5rem;
+}
+
+.tags-list-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.tag-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--gris-claro);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.tag-checkbox input {
+  margin: 0;
+}
+
+.tag-label {
+  user-select: none;
+}
+
+.selected-tags {
+  margin-top: 1rem;
+}
+
+.selected-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--azul-claro);
+  color: var(--blanco);
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.tag-remove {
+  background: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
