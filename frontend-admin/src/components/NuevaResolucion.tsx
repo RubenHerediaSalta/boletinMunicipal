@@ -151,8 +151,12 @@ const NuevaResolucion: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
+    
     if (name === 'archivo_adjunto') {
-      setFormData(prev => ({ ...prev, [name]: files ? files[0] : null }));
+      setFormData(prev => ({ 
+        ...prev, 
+        archivo_adjunto: files ? files[0] : null 
+      }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -384,7 +388,26 @@ const NuevaResolucion: React.FC = () => {
                 />
                 <small>Documento PDF oficial de la resolución</small>
                 
-                {resolucionExistente?.data?.archivo_adjunto && (
+                {/* Mostrar archivo PDF seleccionado */}
+                {formData.archivo_adjunto && (
+                  <div className="selected-file">
+                    <strong>📄 Archivo seleccionado:</strong>
+                    <div className="file-info">
+                      <span className="file-name">{formData.archivo_adjunto.name}</span>
+                      <span className="file-size">
+                        ({(formData.archivo_adjunto.size / 1024 / 1024).toFixed(2)} MB)
+                      </span>
+                    </div>
+                    {resolucionExistente?.data?.archivo_adjunto && (
+                      <div className="file-warning">
+                        ⚠️ Este archivo reemplazará al actual
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Mostrar archivo actual cuando se está editando */}
+                {resolucionExistente?.data?.archivo_adjunto && !formData.archivo_adjunto && (
                   <div className="current-file">
                     <strong>Archivo actual:</strong>
                     <a 
@@ -412,41 +435,55 @@ const NuevaResolucion: React.FC = () => {
                 />
                 <small>PDFs, imágenes o documentos Word (máximo 9 archivos)</small>
                 
+                {/* Lista de anexos seleccionados */}
                 {formData.anexos.length > 0 && (
                   <div className="anexos-list">
-                    <strong>Archivos seleccionados:</strong>
+                    <strong>📎 Archivos seleccionados:</strong>
                     <ul>
                       {formData.anexos.map((file, index) => (
                         <li key={index}>
-                          {file.name}
-                          <button 
-                            type="button" 
-                            onClick={() => handleRemoveAnexo(index)}
-                            className="btn btn-danger btn-sm"
-                          >
-                            🗑️
-                          </button>
+                          <div className="anexo-item">
+                            <div className="anexo-info">
+                              <span className="anexo-name">{file.name}</span>
+                              <span className="anexo-size">
+                                ({(file.size / 1024).toFixed(2)} KB)
+                              </span>
+                            </div>
+                            <button 
+                              type="button" 
+                              onClick={() => handleRemoveAnexo(index)}
+                              className="btn btn-danger btn-sm"
+                              title="Eliminar archivo"
+                            >
+                              🗑️
+                            </button>
+                          </div>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
+                {/* Anexos existentes al editar */}
                 {resolucionExistente?.data?.anexos && resolucionExistente.data.anexos.length > 0 && (
                   <div className="current-anexos">
                     <strong>Anexos actuales:</strong>
                     <ul>
                       {resolucionExistente.data.anexos.map((anexo, index) => (
                         <li key={index}>
-                          {anexo}
-                          <a 
-                            href={getDownloadUrl(anexo)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-outline btn-sm"
-                          >
-                            📎 Descargar
-                          </a>
+                          <div className="anexo-item">
+                            <div className="anexo-info">
+                              <span className="anexo-name">{anexo}</span>
+                            </div>
+                            <a 
+                              href={getDownloadUrl(anexo)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline btn-sm"
+                            >
+                              📎 Descargar
+                            </a>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -491,6 +528,7 @@ const NuevaResolucion: React.FC = () => {
                       type="button" 
                       onClick={() => handleRemoveVinculo(index)}
                       className="btn btn-danger btn-sm"
+                      title="Eliminar vínculo"
                     >
                       🗑️
                     </button>
@@ -541,6 +579,7 @@ const NuevaResolucion: React.FC = () => {
                         type="button" 
                         onClick={() => handleRemoveTag(tag)}
                         className="tag-remove"
+                        title="Eliminar etiqueta"
                       >
                         ×
                       </button>

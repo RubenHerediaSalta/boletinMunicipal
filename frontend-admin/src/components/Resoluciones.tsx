@@ -1,10 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resolucionesAPI } from '../services/api';
 import { Link } from 'react-router-dom';
 import './Resoluciones.css';
 
+// Componente para resaltar texto de búsqueda (separado para evitar re-renders)
+const HighlightText: React.FC<{ text: string; search: string }> = React.memo(({ text, search }) => {
+  if (!search) return <>{text}...</>;
+
+  const parts = text.split(new RegExp(`(${search})`, 'gi'));
+  
+  return (
+    <>
+      {parts.map((part, index) =>
+        part.toLowerCase() === search.toLowerCase() ? (
+          <mark key={index} className="search-highlight">{part}</mark>
+        ) : (
+          part
+        )
+      )}...
+    </>
+  );
+});
+
+HighlightText.displayName = 'HighlightText';
+
 const Resoluciones: React.FC = () => {
+  // Estado principal de filtros
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -13,9 +35,17 @@ const Resoluciones: React.FC = () => {
     tags: [] as string[]
   });
 
+  // Estado local para UI (no desencadena búsquedas automáticas)
   const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [localSearch, setLocalSearch] = useState(''); // Solo para el input
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagSearch, setTagSearch] = useState('');
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Refs para mantener referencias estables
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSearchRef = useRef<string>('');
 
   const queryClient = useQueryClient();
 
@@ -25,7 +55,7 @@ const Resoluciones: React.FC = () => {
     queryFn: () => resolucionesAPI.getAllTags()
   });
 
-  // Obtener resoluciones con filtros
+  // Obtener resoluciones con filtros - OPTIMIZADO
   const { data, isLoading, error } = useQuery({
     queryKey: ['resoluciones', filters],
     queryFn: () => resolucionesAPI.getAll(filters)
@@ -38,21 +68,94 @@ const Resoluciones: React.FC = () => {
     }
   });
 
-  // Actualizar etiquetas disponibles cuando se cargan
+  // Inicialización: cargar etiquetas y sincronizar estado local
   useEffect(() => {
     if (tagsData?.data) {
       setAvailableTags(tagsData.data);
     }
   }, [tagsData]);
 
-  // Actualizar filtros cuando cambian las etiquetas seleccionadas
+  // Sincronizar el estado local con los filtros actuales al cargar
   useEffect(() => {
+    if (!isInitialized) {
+      setLocalSearch(filters.search);
+      setSelectedTags(filters.tags);
+      setIsInitialized(true);
+    }
+  }, [filters, isInitialized]);
+
+  // Sincronizar selectedTags con filters.tags (solo cuando cambian las tags seleccionadas)
+  useEffect(() => {
+    if (isInitialized) {
+      const timeoutId = setTimeout(() => {
+        setFilters(prev => ({
+          ...prev,
+          tags: selectedTags,
+          page: 1
+        }));
+      }, 300);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [selectedTags, isInitialized]);
+
+  // Función para ejecutar búsqueda
+  const executeSearch = useCallback(() => {
+    if (lastSearchRef.current === localSearch) {
+      return; // No hacer nada si la búsqueda no ha cambiado
+    }
+
     setFilters(prev => ({
       ...prev,
-      tags: selectedTags,
-      page: 1 // Reset a primera página cuando cambian los filtros
+      search: localSearch,
+      page: 1
     }));
-  }, [selectedTags]);
+    lastSearchRef.current = localSearch;
+    
+    // Mantener el foco en el input
+    if (searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 10);
+    }
+  }, [localSearch]);
+
+  // Manejar cambio en el campo de búsqueda - SIN re-renderizar el componente
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+    
+    // Limpiar timeout anterior
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Establecer nuevo timeout para búsqueda automática después de pausa
+    searchTimeoutRef.current = setTimeout(() => {
+      if (value.length === 0 || value.length >= 2) {
+        executeSearch();
+      }
+    }, 500); // 500ms de delay para permitir escribir
+  };
+
+  // Búsqueda inmediata al presionar Enter
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+      executeSearch();
+    }
+  };
+
+  // Botón de búsqueda manual
+  const handleSearchButtonClick = () => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    executeSearch();
+  };
 
   const handleDelete = async (id: number) => {
     if (window.confirm('¿Está seguro de eliminar esta resolución?')) {
@@ -64,16 +167,7 @@ const Resoluciones: React.FC = () => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      page: key !== 'page' ? 1 : prev.page // Reset page solo si no es cambio de página
-    }));
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilters(prev => ({
-      ...prev,
-      search: value,
-      page: 1
+      page: key !== 'page' ? 1 : prev.page
     }));
   };
 
@@ -93,13 +187,31 @@ const Resoluciones: React.FC = () => {
       search: '',
       tags: []
     });
+    setLocalSearch('');
     setSelectedTags([]);
     setTagSearch('');
+    lastSearchRef.current = '';
+    
+    // Restaurar el foco al campo de búsqueda
+    if (searchInputRef.current) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
   };
 
   const filteredTags = availableTags.filter(tag =>
     tag.toLowerCase().includes(tagSearch.toLowerCase())
   );
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (isLoading) return <div className="loading">Cargando resoluciones...</div>;
   if (error) return <div className="error">Error al cargar las resoluciones</div>;
@@ -118,17 +230,33 @@ const Resoluciones: React.FC = () => {
         <div className="filter-section">
           <h3>Filtros de Búsqueda</h3>
           
-          {/* Búsqueda por texto */}
+          {/* Búsqueda por texto - MEJORADO */}
           <div className="filter-group">
             <label htmlFor="search">Buscar por número, título o contenido:</label>
-            <input
-              type="text"
-              id="search"
-              value={filters.search}
-              onChange={handleSearchChange}
-              placeholder="Ej: 001/2024, transparencia, sistema..."
-              className="search-input"
-            />
+            <div className="search-input-wrapper">
+              <input
+                ref={searchInputRef}
+                type="text"
+                id="search"
+                value={localSearch}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+                placeholder="Ej: 001/2024, transparencia, sistema..."
+                className="search-input"
+                autoComplete="off"
+              />
+              <button 
+                type="button"
+                onClick={handleSearchButtonClick}
+                className="btn btn-primary btn-sm search-button"
+                title="Buscar"
+              >
+                🔍
+              </button>
+            </div>
+            <small className="search-hint">
+              La búsqueda se ejecuta automáticamente después de escribir 2 caracteres o pausar 0.5 segundos
+            </small>
           </div>
 
           <div className="filter-row">
@@ -166,7 +294,7 @@ const Resoluciones: React.FC = () => {
                         checked={selectedTags.includes(tag)}
                         onChange={() => handleTagToggle(tag)}
                       />
-                      <span className="tag-label">{tag}</span>
+                      <span className="tag-label">#{tag}</span>
                     </label>
                   ))}
                   {filteredTags.length === 0 && tagSearch && (
@@ -181,7 +309,7 @@ const Resoluciones: React.FC = () => {
                     <div className="selected-tags-list">
                       {selectedTags.map(tag => (
                         <span key={tag} className="selected-tag">
-                          {tag}
+                          #{tag}
                           <button 
                             type="button" 
                             onClick={() => handleTagToggle(tag)}
@@ -207,7 +335,7 @@ const Resoluciones: React.FC = () => {
               Limpiar Filtros
             </button>
             
-            {/* Contador de resultados - CORREGIDO */}
+            {/* Contador de resultados */}
             <div className="results-info">
               {data?.data?.total !== undefined && (
                 <span>
@@ -219,7 +347,7 @@ const Resoluciones: React.FC = () => {
         </div>
       </div>
 
-      {/* Lista de Resoluciones - CORREGIDO */}
+      {/* Lista de Resoluciones */}
       <div className="resoluciones-list">
         {data?.data?.resoluciones?.map((resolucion: any) => (
           <div key={resolucion.id} className="resolucion-card">
@@ -244,7 +372,7 @@ const Resoluciones: React.FC = () => {
               </div>
               <div className="meta-item">
                 <strong>Publicado:</strong> {new Date(resolucion.created_at).toLocaleDateString('es-AR')}
-              </div>
+            </div>
             </div>
 
             {/* Vista previa del contenido con highlighting de búsqueda */}
@@ -299,7 +427,7 @@ const Resoluciones: React.FC = () => {
         ))}
       </div>
 
-      {/* Empty State - CORREGIDO */}
+      {/* Empty State */}
       {data?.data?.resoluciones?.length === 0 && (
         <div className="empty-state">
           {filters.search || filters.estado || selectedTags.length > 0 ? (
@@ -320,7 +448,7 @@ const Resoluciones: React.FC = () => {
         </div>
       )}
 
-      {/* Paginación - CORREGIDO */}
+      {/* Paginación */}
       {data?.data && data.data.totalPages > 1 && (
         <div className="pagination">
           <button 
@@ -348,25 +476,6 @@ const Resoluciones: React.FC = () => {
         </div>
       )}
     </div>
-  );
-};
-
-// Componente para resaltar texto de búsqueda
-const HighlightText: React.FC<{ text: string; search: string }> = ({ text, search }) => {
-  if (!search) return <>{text}...</>;
-
-  const parts = text.split(new RegExp(`(${search})`, 'gi'));
-  
-  return (
-    <>
-      {parts.map((part, index) =>
-        part.toLowerCase() === search.toLowerCase() ? (
-          <mark key={index} className="search-highlight">{part}</mark>
-        ) : (
-          part
-        )
-      )}...
-    </>
   );
 };
 
