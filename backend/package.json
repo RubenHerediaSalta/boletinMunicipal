@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "init-db": "node scripts/initDB.js",
     "migrate": "node scripts/migrateDB.js",
-    "reset-db": "npm run init-db && npm run migrate"
+    "reset-db": "npm run init-db && npm run migrate",
+    "create-user": "node scripts/createUser.js",
+    "delete-default-admin": "node scripts/deleteDefaultAdmin.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
